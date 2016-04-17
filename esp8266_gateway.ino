@@ -10,6 +10,10 @@ Based on UKHASnet rf69_repeater by James Coxon M6JCX
 
 #include <ESP8266HTTPClient.h>
 
+#include <DNSServer.h>            //Local DNS Server used for redirecting all requests to the configuration portal
+#include <ESP8266WebServer.h>     //Local WebServer used to serve the configuration portal
+#include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager WiFi Configuration Magic
+
 #include <SPI.h>
 #include <string.h>
 #include <stdio.h>
@@ -20,6 +24,8 @@ Based on UKHASnet rf69_repeater by James Coxon M6JCX
 #define USE_SERIAL Serial
 
 ESP8266WiFiMulti WiFiMulti;
+
+WiFiManager wifiManager;
 
 
 //************* Misc Setup ****************/
@@ -92,7 +98,8 @@ void setup()
         delay(1000);
     }
 
-    WiFiMulti.addAP("Sherlock", "seashore");
+    //WiFiMulti.addAP("Sherlock", "seashore");
+    wifiManager.autoConnect();
 
     USE_SERIAL.println("AP added");
   while (!rf69.init()){
