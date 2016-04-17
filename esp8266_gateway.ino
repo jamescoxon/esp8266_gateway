@@ -98,7 +98,6 @@ void setup()
         delay(1000);
     }
 
-    //WiFiMulti.addAP("Sherlock", "seashore");
     wifiManager.autoConnect();
 
     USE_SERIAL.println("AP added");
