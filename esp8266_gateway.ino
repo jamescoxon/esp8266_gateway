@@ -5,6 +5,7 @@ UKHASnet Gateway Code by Phil Crump M0DNY
 Based on UKHASnet rf69_repeater by James Coxon M6JCX
 
 */
+
 #include <ESP8266WiFi.h>
 #include <ESP8266WiFiMulti.h>
 
@@ -59,7 +60,7 @@ int gen_Data(){
   #ifdef LOCATION_STRING
   if(data_count=='a' or data_count=='z') {
       dataString += "L";
-      dataString += LOCATION_STRING;
+      dataString += location;
   }
   #endif
   
@@ -101,6 +102,7 @@ void setup()
     wifiManager.autoConnect();
 
     USE_SERIAL.println("AP added");
+
   while (!rf69.init()){
     delay(100);
   }
