@@ -57,7 +57,7 @@ int gen_Data(){
   
   dataString = char(num_repeats);
   dataString += char(data_count);
-  #ifdef LOCATION_STRING
+  #ifdef location
   if(data_count=='a' or data_count=='z') {
       dataString += "L";
       dataString += location;
