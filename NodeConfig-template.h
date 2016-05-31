@@ -4,7 +4,7 @@
 //************* Node-specific config ****************/
 #ifdef XXX
 char id[] = "XXX";
-#define LOCATION_STRING "51.551,-0.0772"
+#define location "51.551,-0.0772"
 byte num_repeats = '3'; //The number of hops the message will make in the network
 #define BEACON_INTERVAL 60 // Beacon Interval is ~x seconds
 uint8_t rfm_power = 20; // dBmW
