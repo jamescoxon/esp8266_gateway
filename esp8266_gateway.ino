@@ -57,10 +57,10 @@ int gen_Data(){
   
   dataString = char(num_repeats);
   dataString += char(data_count);
-  #ifdef location
+  #ifdef LOCATION_STRING
   if(data_count=='a' or data_count=='z') {
       dataString += "L";
-      dataString += location;
+      dataString += LOCATION_STRING;
   }
   #endif
   
@@ -159,6 +159,7 @@ void loop()
         }
         USE_SERIAL.print("|");
         USE_SERIAL.println(rx_rssi);
+        
 
             // wait for WiFi connection
         if((WiFiMulti.run() == WL_CONNECTED)) {
@@ -193,6 +194,33 @@ void loop()
           http.end();
           USE_SERIAL.println();
         }
+
+                // find end of packet & start of repeaters
+        uint8_t end_bracket = -1, start_bracket = -1;        
+        for (int k=0; k<len; k++) {
+          if (buf[k] == '[') {
+            start_bracket = k;
+          }
+          else if (buf[k] == ']') {
+            end_bracket = k;
+            buf[k+1] = '\0';
+            break;
+          }
+        }
+
+        // Need to take the recieved buffer and decode it and add a reference 
+        if (buf[0] > '0' && end_bracket != -1 && strstr((const char *)&buf[start_bracket], id) == NULL) {
+          // Reduce the repeat value
+          buf[0]--;
+          
+          // Add the repeater ID
+          packet_len = end_bracket + sprintf((char *)&buf[end_bracket], ",%s]", id);
+
+          //random delay to try and avoid packet collision
+          delay(random(50, 800));
+          
+          rf69.send((uint8_t*)buf, packet_len, rfm_power);
+        }
       }
     }
   
@@ -222,7 +250,41 @@ void loop()
             USE_SERIAL.print(data[j]);
         }
     }
-    
+
+                // wait for WiFi connection
+        if((WiFiMulti.run() == WL_CONNECTED)) {
+
+          HTTPClient http;
+  
+          USE_SERIAL.print("[HTTP] begin...\n");
+          // configure traged server and url
+  
+          USE_SERIAL.print("[HTTP] POST...\n");
+          // start connection and send HTTP header
+  
+          http.begin("http://www.ukhas.net/api/upload");
+          http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+          
+          //Build up the string to upload to server
+          String uploadPacket = "origin=";
+          uploadPacket += id; //gateway nodes ID
+          uploadPacket += "&data=";
+          
+          for (int i = 0; i < packet_len; i++){ 
+            uploadPacket += char(data[i]); //copy the packet from the buffer we got from rf69.recv into our upload string. There may be neater ways of doing this.
+          }
+          
+          uploadPacket += "&rssi=";      
+          uploadPacket += "0";
+          uploadPacket += "\0"; //null terminate the string for safe keeping
+          
+          http.POST(uploadPacket);
+          
+          http.writeToStream(&Serial);
+          http.end();
+          USE_SERIAL.println();
+        }
+        
     data_interval = random(BEACON_INTERVAL, BEACON_INTERVAL+20) + count;
   }
 }
