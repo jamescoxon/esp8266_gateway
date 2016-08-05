@@ -99,6 +99,7 @@ void setup()
         delay(1000);
     }
 
+    wifiManager.setConfigPortalTimeout(180);
     wifiManager.autoConnect();
 
     USE_SERIAL.println("AP added");
@@ -286,5 +287,15 @@ void loop()
         }
         
     data_interval = random(BEACON_INTERVAL, BEACON_INTERVAL+20) + count;
+  }
+
+  if (count % 10 ==  0){
+    USE_SERIAL.println(count);
+  }
+  
+  if (count > 1000) {
+    USE_SERIAL.println("Restarting...");
+    delay(100);
+    ESP.restart();
   }
 }
