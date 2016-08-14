@@ -69,6 +69,14 @@ int gen_Data(){
   dataString += sampleRfmTemp();
   #endif
 
+  #ifdef ENABLE_RSSI
+  //sprintf(data,"%sR%d",data,rx_rssi);
+  dataString += "R";
+  dataString +=  rf69.lastRssi();
+  dataString += ",";
+  dataString += rf69.sampleRssi();
+  #endif
+
   dataString += "[";
   dataString += id;
   dataString += "]";
