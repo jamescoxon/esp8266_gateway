@@ -9,6 +9,7 @@ byte num_repeats = '3'; //The number of hops the message will make in the networ
 #define BEACON_INTERVAL 60 // Beacon Interval is ~x seconds
 uint8_t rfm_power = 20; // dBmW
 #define SENSITIVE_RX // Enables TESTLNA_SENSITIVE
+#define ENABLE_RSSI
 #endif
 
 //************* Other config ****************/

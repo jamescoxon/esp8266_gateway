@@ -15,6 +15,7 @@ Based on UKHASnet rf69_repeater by James Coxon M6JCX
 #include <ESP8266WebServer.h>     //Local WebServer used to serve the configuration portal
 #include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager WiFi Configuration Magic
 
+#include <EEPROM.h>
 #include <SPI.h>
 #include <string.h>
 #include <stdio.h>
@@ -93,6 +94,7 @@ void setup()
   //analogReference(INTERNAL); // 1.1V ADC reference
   randomSeed(analogRead(6));
   SPI.setFrequency(1000000);
+  int eeprom_addr = 0;
   
    USE_SERIAL.begin(115200);
     //USE_SERIAL.setDebugOutput(true);
@@ -111,6 +113,87 @@ void setup()
     wifiManager.autoConnect();
 
     USE_SERIAL.println("AP added");
+
+    String wifi_ssid;
+    String wifi_passwd;
+    
+    if((WiFiMulti.run() == WL_CONNECTED)) {
+      EEPROM.begin(512);
+      //Clear eeprom
+      for (int i = 0; i < 512; i++){
+        EEPROM.write(i, 0); 
+      }
+      EEPROM.commit();
+      
+      //Save wifi details to eeprom as well
+      wifi_ssid = WiFi.SSID();
+      int ssid_length = wifi_ssid.length();
+      USE_SERIAL.print(wifi_ssid);
+      USE_SERIAL.print(" ");
+      USE_SERIAL.println(ssid_length);
+
+      wifi_passwd = WiFi.psk();
+      int psk_length = wifi_passwd.length();
+      USE_SERIAL.print(wifi_passwd);
+      USE_SERIAL.print(" ");
+      USE_SERIAL.println(psk_length);
+      
+      for (eeprom_addr=0; eeprom_addr <= (ssid_length); eeprom_addr++){
+        EEPROM.write(eeprom_addr, wifi_ssid.charAt(eeprom_addr)); 
+      }
+      for (eeprom_addr=10; eeprom_addr <= (psk_length + 10); eeprom_addr++){
+        EEPROM.write(eeprom_addr, wifi_passwd.charAt(eeprom_addr - 10)); 
+      }
+      EEPROM.end();
+
+    }
+    else {
+      //Load up wifi details and then run them to setup wifi
+      //If fails then give up and move on
+      EEPROM.begin(512);
+      eeprom_addr = 0;
+      while (eeprom_addr < 25) {
+          // read a byte from the current address of the EEPROM
+          char value = EEPROM.read(eeprom_addr);
+    
+          USE_SERIAL.print(eeprom_addr);
+          USE_SERIAL.print("\t");
+          USE_SERIAL.print(value);
+          USE_SERIAL.println();
+        
+          // advance to the next address of the EEPROM
+          eeprom_addr = eeprom_addr + 1;
+      }
+    
+      char ssid[10];
+      for (eeprom_addr=0; eeprom_addr <= 10; eeprom_addr++){
+          ssid[eeprom_addr] = EEPROM.read(eeprom_addr);
+      }
+      USE_SERIAL.print(ssid);
+      USE_SERIAL.println("|");
+    
+      char pass[10];
+      for (eeprom_addr=10; eeprom_addr <= 20; eeprom_addr++){
+          pass[eeprom_addr - 10] = EEPROM.read(eeprom_addr);
+      }
+      USE_SERIAL.print(pass);
+      USE_SERIAL.println("|");
+      
+      EEPROM.end();
+    
+      WiFi.disconnect(true);
+      WiFi.begin(ssid, pass);
+      //WiFi.config(staticIP, gateway, subnet);
+      int z = 0;
+      while ((WiFi.status() != WL_CONNECTED) & (z < 25))
+      {
+        delay(500);
+        Serial.print(".");
+        z++;
+      }
+    }
+
+
 
   while (!rf69.init()){
     delay(100);
