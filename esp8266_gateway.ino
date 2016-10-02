@@ -141,8 +141,8 @@ void setup()
       for (eeprom_addr=0; eeprom_addr <= (ssid_length); eeprom_addr++){
         EEPROM.write(eeprom_addr, wifi_ssid.charAt(eeprom_addr)); 
       }
-      for (eeprom_addr=10; eeprom_addr <= (psk_length + 10); eeprom_addr++){
-        EEPROM.write(eeprom_addr, wifi_passwd.charAt(eeprom_addr - 10)); 
+      for (eeprom_addr=20; eeprom_addr <= (psk_length + 20); eeprom_addr++){
+        EEPROM.write(eeprom_addr, wifi_passwd.charAt(eeprom_addr - 20)); 
       }
       EEPROM.end();
 
@@ -152,7 +152,7 @@ void setup()
       //If fails then give up and move on
       EEPROM.begin(512);
       eeprom_addr = 0;
-      while (eeprom_addr < 25) {
+      while (eeprom_addr < 45) {
           // read a byte from the current address of the EEPROM
           char value = EEPROM.read(eeprom_addr);
     
@@ -165,16 +165,16 @@ void setup()
           eeprom_addr = eeprom_addr + 1;
       }
     
-      char ssid[10];
-      for (eeprom_addr=0; eeprom_addr <= 10; eeprom_addr++){
+      char ssid[20];
+      for (eeprom_addr=0; eeprom_addr <= 20; eeprom_addr++){
           ssid[eeprom_addr] = EEPROM.read(eeprom_addr);
       }
       USE_SERIAL.print(ssid);
       USE_SERIAL.println("|");
     
-      char pass[10];
-      for (eeprom_addr=10; eeprom_addr <= 20; eeprom_addr++){
-          pass[eeprom_addr - 10] = EEPROM.read(eeprom_addr);
+      char pass[20];
+      for (eeprom_addr=20; eeprom_addr <= 40; eeprom_addr++){
+          pass[eeprom_addr - 20] = EEPROM.read(eeprom_addr);
       }
       USE_SERIAL.print(pass);
       USE_SERIAL.println("|");
@@ -384,7 +384,7 @@ void loop()
     USE_SERIAL.println(count);
   }
   
-  if (count > 1000) {
+  if (count > 5000) {
     USE_SERIAL.println("Restarting...");
     delay(100);
     ESP.restart();
