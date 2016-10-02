@@ -15,4 +15,15 @@
 6. Rename NodeConfig-template.h to NodeConfig.h
 7. Open esp8266_gateway.ino
 8. Edit NodeConfig.h and add in your location, node ID
-9. Upload the code
+9. Upload the code via a serial adapter (e.g FTDI) connected to the 5 pin header.
+  * Pin 1 is closest to the USB connector.
+  * Before uploading, GPIO0 must be pulled low by shorting pins 4 and 5 and the board must be restarted.
+  
+  
+    | Pin | Function |
+    |-----|----------|
+    | 1   | Ground   |
+    | 2   | Rx       |
+    | 3   | Tx       |
+    | 4   | Ground   |
+    | 5   | GPIO0    |
